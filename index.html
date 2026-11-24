@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+  <meta name="theme-color" content="#07111f">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="360 Grad">
+  <title>360° Drehungsalarm</title>
+  <style>
+    :root{color-scheme:dark;--bg:#07111f;--card:#111e30;--muted:#9db0c7;--blue:#36a3ff;--green:#32d583;--red:#ff6677}
+    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+    body{margin:0;min-height:100vh;min-height:100dvh;background:radial-gradient(circle at top,#16345c 0,#07111f 55%);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:white;display:grid;place-items:center;padding:calc(18px + env(safe-area-inset-top)) 18px calc(18px + env(safe-area-inset-bottom))}
+    main{width:min(100%,480px);background:rgba(17,30,48,.94);border:1px solid rgba(255,255,255,.1);border-radius:28px;padding:24px;box-shadow:0 20px 70px #0008;text-align:center}
+    h1{font-size:30px;margin:0 0 6px}.sub{color:var(--muted);margin:0 0 22px;line-height:1.45}
+    .ring{width:230px;height:230px;margin:12px auto 20px;position:relative;display:grid;place-items:center}
+    svg{width:100%;height:100%;transform:rotate(-90deg)} circle{fill:none;stroke-width:16}.track{stroke:#ffffff18}.progress{stroke:var(--blue);stroke-linecap:round;transition:stroke-dashoffset .08s linear,stroke .2s}
+    .degree{position:absolute;font-size:46px;font-weight:800}.degree small{display:block;font-size:14px;color:var(--muted);font-weight:500;margin-top:3px}
+    .status{min-height:48px;display:grid;place-items:center;font-weight:650;margin-bottom:12px}
+    button{width:100%;border:0;border-radius:16px;padding:16px 18px;font-size:18px;font-weight:750;color:white;background:var(--blue);margin-top:10px;cursor:pointer}
+    button.stop{background:var(--red)} button.secondary{background:#ffffff12;border:1px solid #ffffff20;font-size:15px}
+    .details{margin-top:18px;padding-top:16px;border-top:1px solid #ffffff14;color:var(--muted);font-size:13px;line-height:1.45;text-align:left}
+    .value{color:white;font-variant-numeric:tabular-nums}.ok{color:var(--green)}
+  </style>
+</head>
+<body>
+<main>
+  <h1>360°-Drehungsalarm</h1>
+  <p class="sub">Start drücken und das iPhone gleichmäßig einmal vollständig um eine Achse drehen.</p>
+  <div class="ring">
+    <svg viewBox="0 0 240 240" aria-hidden="true">
+      <circle class="track" cx="120" cy="120" r="100"/>
+      <circle id="arc" class="progress" cx="120" cy="120" r="100"/>
+    </svg>
+    <div id="degree" class="degree">0°<small>von 360°</small></div>
+  </div>
+  <div id="status" class="status">Bereit</div>
+  <button id="start">Überwachung starten</button>
+  <button id="reset" class="secondary">Messung zurücksetzen</button>
+  <button id="test" class="secondary">Ton testen</button>
+  <div class="details">
+    <div>Erkannte Achse: <span id="axis" class="value">–</span></div>
+    <div>Hinweis: Safari muss geöffnet und der Bildschirm aktiv bleiben. Für zuverlässige Wiedergabe Lautstärke einschalten und Stummmodus deaktivieren.</div>
+  </div>
+</main>
+<script>
+(() => {
+  const target = 2*Math.PI, circumference=2*Math.PI*100;
+  const arc=document.getElementById('arc'), degree=document.getElementById('degree'), status=document.getElementById('status');
+  const startBtn=document.getElementById('start'), resetBtn=document.getElementById('reset'), testBtn=document.getElementById('test'), axisEl=document.getElementById('axis');
+  arc.style.strokeDasharray=circumference; arc.style.strokeDashoffset=circumference;
+  let running=false, axis=null, total=0, lastTime=null, lastMove=0, completed=false, audioCtx=null;
+  const START=.65, MOVE=.12, IDLE=1400;
+
+  function setUI(){
+    const p=Math.min(Math.abs(total)/target,1), deg=Math.round(p*360);
+    degree.innerHTML=`${deg}°<small>von 360°</small>`;
+    arc.style.strokeDashoffset=circumference*(1-p);
+    arc.style.stroke=p>=1?'var(--green)':'var(--blue)';
+  }
+  function reset(msg='Überwachung aktiv – iPhone drehen'){
+    axis=null; total=0; lastTime=null; lastMove=performance.now(); completed=false; axisEl.textContent='–'; status.textContent=msg; setUI();
+  }
+  function ensureAudio(){
+    if(!audioCtx) audioCtx=new (window.AudioContext||window.webkitAudioContext)();
+    if(audioCtx.state==='suspended') audioCtx.resume();
+  }
+  function beep(){
+    ensureAudio();
+    const now=audioCtx.currentTime;
+    [0,.22,.44].forEach((delay,i)=>{
+      const o=audioCtx.createOscillator(), g=audioCtx.createGain();
+      o.type='sine'; o.frequency.value=[880,1046,1318][i];
+      g.gain.setValueAtTime(.0001,now+delay); g.gain.exponentialRampToValueAtTime(.35,now+delay+.015); g.gain.exponentialRampToValueAtTime(.0001,now+delay+.18);
+      o.connect(g).connect(audioCtx.destination); o.start(now+delay); o.stop(now+delay+.2);
+    });
+    if(navigator.vibrate) navigator.vibrate([120,60,120]);
+  }
+  function onMotion(e){
+    if(!running||completed) return;
+    const r=e.rotationRate; if(!r) return;
+    // DeviceMotion rotationRate is degrees/s. Convert to rad/s.
+    const rates={x:(r.beta||0)*Math.PI/180,y:(r.gamma||0)*Math.PI/180,z:(r.alpha||0)*Math.PI/180};
+    const now=e.timeStamp||performance.now();
+    if(lastTime===null){lastTime=now;return}
+    const dt=Math.min((now-lastTime)/1000,.2); lastTime=now;
+    if(!axis){
+      const a=Object.entries(rates).sort((a,b)=>Math.abs(b[1])-Math.abs(a[1]))[0];
+      if(Math.abs(a[1])<START) return;
+      axis=a[0]; axisEl.textContent=axis.toUpperCase(); status.textContent='Drehung erkannt'; lastMove=performance.now();
+    }
+    const w=rates[axis];
+    if(Math.abs(w)>=MOVE){ total+=w*dt; lastMove=performance.now(); }
+    else if(performance.now()-lastMove>IDLE && Math.abs(total)<target){ reset('Drehung unterbrochen – erneut drehen'); return; }
+    setUI();
+    if(Math.abs(total)>=target){
+      completed=true; total=Math.sign(total||1)*target; setUI(); status.innerHTML='<span class="ok">360° erkannt – Signal ausgelöst</span>'; beep();
+      setTimeout(()=>{if(running) reset('Bereit für die nächste Drehung')},1800);
+    }
+  }
+  async function start(){
+    try{
+      ensureAudio();
+      if(typeof DeviceMotionEvent==='undefined') throw new Error('Bewegungssensoren werden von diesem Browser nicht bereitgestellt.');
+      if(typeof DeviceMotionEvent.requestPermission==='function'){
+        const permission=await DeviceMotionEvent.requestPermission();
+        if(permission!=='granted') throw new Error('Bewegungszugriff wurde nicht erlaubt. Bitte Safari-Zugriff erlauben und erneut starten.');
+      }
+      window.addEventListener('devicemotion',onMotion,true); running=true; reset();
+      startBtn.textContent='Überwachung stoppen'; startBtn.classList.add('stop');
+    }catch(err){ status.textContent=err.message||'Die Sensorfreigabe ist fehlgeschlagen.'; }
+  }
+  function stop(){window.removeEventListener('devicemotion',onMotion,true);running=false;startBtn.textContent='Überwachung starten';startBtn.classList.remove('stop');reset('Überwachung beendet');}
+  startBtn.addEventListener('click',()=>running?stop():start());
+  resetBtn.addEventListener('click',()=>reset(running?'Messung zurückgesetzt':'Bereit'));
+  testBtn.addEventListener('click',()=>{ensureAudio();beep();status.textContent='Testsignal abgespielt';});
+  document.addEventListener('visibilitychange',()=>{if(document.hidden&&running) status.textContent='Safari ist im Hintergrund – Messung pausiert';});
+})();
+</script>
+</body>
+</html>
