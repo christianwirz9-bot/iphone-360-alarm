@@ -5,19 +5,19 @@
 
     <meta
         name="viewport"
-        content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no"
+        content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no"
     >
 
     <meta name="theme-color" content="#07111f">
     <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="Drehungsalarm">
 
-    <title>360° Roll-Drehung</title>
+    <title>360° Drehungsalarm</title>
 
     <style>
         :root {
             color-scheme: dark;
-
-            --bg: #07111f;
+            --background: #07111f;
             --card: #111e30;
             --muted: #9db0c7;
             --blue: #36a3ff;
@@ -32,24 +32,8 @@
 
         body {
             margin: 0;
-
             min-height: 100vh;
             min-height: 100dvh;
-
-            background:
-                radial-gradient(
-                    circle at top,
-                    #16345c 0,
-                    #07111f 55%
-                );
-
-            font-family:
-                -apple-system,
-                BlinkMacSystemFont,
-                "Segoe UI",
-                sans-serif;
-
-            color: white;
 
             display: grid;
             place-items: center;
@@ -58,83 +42,97 @@
                 calc(18px + env(safe-area-inset-top))
                 18px
                 calc(18px + env(safe-area-inset-bottom));
+
+            color: white;
+
+            font-family:
+                -apple-system,
+                BlinkMacSystemFont,
+                "Segoe UI",
+                sans-serif;
+
+            background:
+                radial-gradient(
+                    circle at top,
+                    #16345c 0,
+                    var(--background) 55%
+                );
         }
 
         main {
             width: min(100%, 480px);
 
-            background: rgba(17, 30, 48, 0.95);
+            padding: 24px;
+
+            text-align: center;
+
+            background:
+                rgba(17, 30, 48, 0.96);
 
             border:
                 1px solid
-                rgba(255,255,255,0.10);
+                rgba(255, 255, 255, 0.1);
 
             border-radius: 28px;
 
-            padding: 24px;
-
             box-shadow:
                 0 20px 70px
-                rgba(0,0,0,0.55);
-
-            text-align: center;
+                rgba(0, 0, 0, 0.55);
         }
 
         h1 {
-            font-size: 29px;
             margin: 0 0 6px;
+            font-size: 29px;
         }
 
-        .sub {
-            color: var(--muted);
-            line-height: 1.45;
+        .subtitle {
             margin: 0 0 18px;
+
+            color: var(--muted);
+
+            font-size: 15px;
+            line-height: 1.45;
         }
 
-        .direction {
+        .movement {
+            margin-bottom: 16px;
+            padding: 14px;
+
             background:
-                rgba(255,255,255,0.04);
+                rgba(255, 255, 255, 0.04);
 
             border:
                 1px solid
-                rgba(255,255,255,0.08);
+                rgba(255, 255, 255, 0.08);
 
             border-radius: 15px;
-
-            padding: 13px;
-
-            margin-bottom: 15px;
 
             font-size: 14px;
             line-height: 1.45;
         }
 
-        .phone {
-            display: inline-block;
-            font-size: 28px;
-            margin-right: 8px;
+        .movement-icon {
+            margin-bottom: 7px;
+            font-size: 38px;
         }
 
         .ring {
-            width: 218px;
-            height: 218px;
-
-            margin:
-                8px auto
-                16px;
-
             position: relative;
 
             display: grid;
             place-items: center;
+
+            width: 220px;
+            height: 220px;
+
+            margin: 8px auto 16px;
         }
 
         svg {
             width: 100%;
             height: 100%;
 
-            transform:
-                rotate(-90deg);
+            transform: rotate(-90deg);
         }
 
         circle {
@@ -144,12 +142,16 @@
 
         .track {
             stroke:
-                rgba(255,255,255,0.09);
+                rgba(255, 255, 255, 0.09);
         }
 
         .progress {
             stroke: var(--blue);
             stroke-linecap: round;
+
+            transition:
+                stroke-dashoffset 0.05s linear,
+                stroke 0.2s;
         }
 
         .degree {
@@ -164,46 +166,45 @@
 
             margin-top: 5px;
 
+            color: var(--muted);
+
             font-size: 13px;
             font-weight: 500;
-
-            color: var(--muted);
         }
 
         .status {
-            min-height: 48px;
-
             display: grid;
             place-items: center;
 
-            font-weight: 650;
-
+            min-height: 48px;
             margin-bottom: 5px;
+
+            font-weight: 650;
+            line-height: 1.35;
         }
 
-        .ok {
+        .success {
             color: var(--green);
         }
 
         button,
-        .pick {
-            width: 100%;
-
+        .file-button {
             display: block;
 
-            border: 0;
-            border-radius: 16px;
-
-            padding: 15px;
+            width: 100%;
 
             margin-top: 10px;
-
-            font-size: 17px;
-            font-weight: 750;
+            padding: 15px;
 
             color: white;
 
             background: var(--blue);
+
+            border: 0;
+            border-radius: 16px;
+
+            font-size: 17px;
+            font-weight: 750;
 
             cursor: pointer;
         }
@@ -213,13 +214,13 @@
         }
 
         button.secondary,
-        .pick {
+        .file-button {
             background:
-                rgba(255,255,255,0.07);
+                rgba(255, 255, 255, 0.07);
 
             border:
                 1px solid
-                rgba(255,255,255,0.12);
+                rgba(255, 255, 255, 0.12);
 
             font-size: 15px;
         }
@@ -234,53 +235,61 @@
 
             padding: 13px;
 
-            border-radius: 12px;
+            color: white;
+            background: var(--background);
 
             border:
                 1px solid
-                rgba(255,255,255,0.12);
+                rgba(255, 255, 255, 0.12);
 
-            background: #07111f;
+            border-radius: 12px;
 
-            color: white;
+            font-size: 15px;
         }
 
-        .sound {
-            margin-top: 18px;
+        .sound-section {
+            margin-top: 19px;
+            padding-top: 16px;
 
-            padding-top: 15px;
+            text-align: left;
 
             border-top:
                 1px solid
-                rgba(255,255,255,0.08);
-
-            text-align: left;
+                rgba(255, 255, 255, 0.08);
         }
 
-        .sound h2 {
-            font-size: 17px;
+        .sound-section h2 {
             margin: 0 0 8px;
+            font-size: 17px;
         }
 
-        .sound p,
-        .info {
+        .sound-section p,
+        .information {
             color: var(--muted);
 
             font-size: 13px;
             line-height: 1.45;
         }
 
-        .filename {
-            margin-top: 8px;
+        .selected-sound {
+            margin-top: 9px;
 
             color: var(--green);
 
             font-size: 13px;
-
             overflow-wrap: anywhere;
         }
 
-        .youtube-grid {
+        .youtube-section {
+            margin-top: 18px;
+            padding-top: 15px;
+
+            border-top:
+                1px solid
+                rgba(255, 255, 255, 0.08);
+        }
+
+        .youtube-values {
             display: grid;
 
             grid-template-columns:
@@ -291,20 +300,44 @@
             margin-top: 8px;
         }
 
+        #youtube-player {
+            width: 100%;
+            min-height: 200px;
+
+            margin-top: 10px;
+        }
+
+        .debug {
+            margin-top: 12px;
+            padding: 10px;
+
+            color: var(--muted);
+            background:
+                rgba(255, 255, 255, 0.035);
+
+            border-radius: 10px;
+
+            font-size: 12px;
+            line-height: 1.45;
+        }
+
+        .debug span {
+            color: white;
+            font-variant-numeric: tabular-nums;
+        }
+
         .version {
             margin-top: 25px;
-
             padding-top: 15px;
+
+            color: #70849c;
 
             border-top:
                 1px solid
-                rgba(255,255,255,0.08);
-
-            text-align: center;
+                rgba(255, 255, 255, 0.08);
 
             font-size: 12px;
-
-            color: #70849c;
+            text-align: center;
         }
     </style>
 </head>
@@ -313,30 +346,30 @@
 
 <main>
 
-    <h1>360° Roll-Drehung</h1>
+    <h1>360° Drehungsalarm</h1>
 
-    <p class="sub">
-        Das iPhone seitlich im Querformat halten
-        und um seine eigene lange Achse drehen.
-        Der Signalton startet bereits bei 270°.
+    <p class="subtitle">
+        Das iPhone im Hochformat halten und einmal
+        vollständig nach vorne oder hinten überschlagen.
     </p>
 
-    <div class="direction">
+    <div class="movement">
 
-        <span class="phone">📱</span>
+        <div class="movement-icon">
+            ↻ 📱
+        </div>
 
-        <strong>iPhone quer halten.</strong>
+        <strong>Gewünschte Bewegung:</strong>
 
-        Danach das iPhone wie einen Drehspieß
-        um die lange Geräteachse rollen.
+        Das gesamte iPhone macht einen Vorwärts- oder
+        Rückwärtsüberschlag wie in der grünen Zeichnung.
 
         <br><br>
 
         Ziel: <strong>360°</strong><br>
-        Signal: <strong>ab 270°</strong>
+        Signalton: <strong>bereits bei 270°</strong>
 
     </div>
-
 
     <div class="ring">
 
@@ -350,7 +383,7 @@
             </circle>
 
             <circle
-                id="arc"
+                id="progress-ring"
                 class="progress"
                 cx="120"
                 cy="120"
@@ -359,9 +392,8 @@
 
         </svg>
 
-
         <div
-            id="degree"
+            id="degree-display"
             class="degree">
 
             0°
@@ -374,7 +406,6 @@
 
     </div>
 
-
     <div
         id="status"
         class="status">
@@ -383,120 +414,107 @@
 
     </div>
 
-
-    <button id="start">
+    <button id="start-button">
         Überwachung starten
     </button>
 
-
     <button
-        id="reset"
+        id="reset-button"
         class="secondary">
 
         Messung zurücksetzen
 
     </button>
 
+    <div class="debug">
 
+        Gemessene Zielachse:
+        <span id="target-rate">0,00°/s</span>
 
-    <!-- SOUND -->
+        <br>
 
-    <section class="sound">
+        Andere Bewegungsachsen:
+        <span id="other-rates">0,00 / 0,00°/s</span>
+
+    </div>
+
+    <section class="sound-section">
 
         <h2>Signalton</h2>
 
         <p>
-            Standardmäßig wird eine kurze
-            Erfolgsmelodie abgespielt.
+            Standardmäßig ist eine kurze Erfolgsmelodie
+            ausgewählt. Alternativ kann eine eigene
+            Audiodatei verwendet werden.
         </p>
 
-
         <label
-            class="pick"
-            for="audioFile">
+            class="file-button"
+            for="audio-file">
 
             Eigenen Ton auswählen
 
         </label>
 
-
         <input
-            id="audioFile"
+            id="audio-file"
             type="file"
             accept="audio/*,.mp3,.m4a,.wav,.aac"
         >
 
-
         <div
-            id="filename"
-            class="filename">
+            id="selected-sound"
+            class="selected-sound">
 
             Standardton ausgewählt
 
         </div>
 
-
         <button
-            id="defaultSound"
+            id="default-sound-button"
             class="secondary">
 
             Standardton verwenden
 
         </button>
 
-
         <button
-            id="test"
+            id="test-sound-button"
             class="secondary">
 
             Ton testen
 
         </button>
 
+        <div class="youtube-section">
 
-
-        <!-- YOUTUBE -->
-
-        <div
-            style="
-                margin-top:18px;
-                padding-top:15px;
-                border-top:
-                1px solid
-                rgba(255,255,255,0.08);
-            "
-        >
-
-            <h2>
-                YouTube-Ton
-            </h2>
+            <h2>YouTube-Ton</h2>
 
             <p>
-                YouTube ist experimentell.
-                Gib einen Link, die gewünschte
-                Startsekunde und die Abspieldauer ein.
+                Experimentelle Funktion: YouTube-Link,
+                Startsekunde und Abspieldauer eingeben.
+                Der sichtbare Player muss auf dem iPhone
+                zunächst einmal gestartet werden.
             </p>
 
-
             <input
-                id="ytUrl"
+                id="youtube-url"
                 type="url"
                 placeholder="https://www.youtube.com/watch?v=..."
             >
 
-
-            <div class="youtube-grid">
+            <div class="youtube-values">
 
                 <input
-                    id="ytStart"
+                    id="youtube-start"
                     type="number"
                     min="0"
                     value="0"
-                    placeholder="Start"
+                    placeholder="Startsekunde"
                 >
 
                 <input
-                    id="ytDuration"
+                    id="youtube-duration"
                     type="number"
                     min="1"
                     max="60"
@@ -506,294 +524,321 @@
 
             </div>
 
-
             <button
-                id="ytLoad"
+                id="youtube-load-button"
                 class="secondary">
 
-                YouTube-Link laden und testen
+                YouTube laden und testen
 
             </button>
 
-
             <button
-                id="ytUse"
+                id="youtube-use-button"
                 class="secondary">
 
                 YouTube als Signal verwenden
 
             </button>
 
-
             <div
-                id="ytStatus"
-                class="filename">
+                id="youtube-status"
+                class="selected-sound">
 
                 Kein YouTube-Link geladen
 
             </div>
 
-
-            <div
-                id="ytPlayer"
-                style="
-                    width:100%;
-                    min-height:200px;
-                    margin-top:10px;
-                ">
-            </div>
+            <div id="youtube-player"></div>
 
         </div>
 
     </section>
 
-
-
-    <p class="info">
-
+    <p class="information">
         Safari und der Bildschirm müssen während
-        der Messung aktiv bleiben.
-
+        der Messung aktiv bleiben. Für den Ton die
+        Medienlautstärke einschalten.
     </p>
 
-
-
-    <!-- VERSION -->
-
     <div class="version">
-        Version 5.1
+        Version 5.2
     </div>
 
 </main>
 
-
-
-<script
-    src="https://www.youtube.com/iframe_api">
-</script>
-
-
+<script src="https://www.youtube.com/iframe_api"></script>
 
 <script>
-
 (() => {
 
     /*
-     * ==========================================
-     * VERSION
-     * ==========================================
-     */
-
-    const APP_VERSION = "5.1";
-
-
-    /*
-     * 360° = komplette Roll-Drehung
+     * =========================================
+     * VERSION 5.2
+     * =========================================
      *
-     * Ton wird schon bei:
-     * 270° = 1.5 * PI
+     * Ausschließlich rotationRate.beta wird
+     * integriert.
+     *
+     * beta entspricht hier der Rotation um
+     * die waagerechte Geräteachse:
+     *
+     * iPhone im Hochformat halten und nach
+     * vorne oder hinten überschlagen.
      */
 
-    const TRIGGER_ROTATION =
-        1.5 * Math.PI;
+    const APP_VERSION = "5.2";
 
-    const FULL_ROTATION =
+    const FULL_ROTATION_RADIANS =
         2 * Math.PI;
 
+    const SOUND_TRIGGER_RADIANS =
+        1.5 * Math.PI;
 
-    const circumference =
+    const CIRCLE_CIRCUMFERENCE =
         2 * Math.PI * 100;
 
+    /*
+     * Mindestgeschwindigkeit der Zielbewegung.
+     * Kleinere Werte werden als Sensorrauschen
+     * ignoriert.
+     */
 
-    const arc =
-        document.querySelector("#arc");
+    const MINIMUM_TARGET_RATE =
+        8;
 
-    const degree =
-        document.querySelector("#degree");
+    /*
+     * Die Zielachse muss mindestens diesen
+     * Anteil an der gesamten gemessenen
+     * Bewegung haben.
+     *
+     * Dadurch zählen deutliche Bewegungen um
+     * eine andere Achse nicht.
+     */
 
-    const status =
-        document.querySelector("#status");
+    const TARGET_AXIS_DOMINANCE =
+        0.60;
+
+    /*
+     * Ein einzelnes Messintervall wird auf
+     * maximal 0,2 Sekunden begrenzt.
+     */
+
+    const MAXIMUM_DELTA_TIME =
+        0.2;
+
+    const progressRing =
+        document.getElementById(
+            "progress-ring"
+        );
+
+    const degreeDisplay =
+        document.getElementById(
+            "degree-display"
+        );
+
+    const statusDisplay =
+        document.getElementById(
+            "status"
+        );
 
     const startButton =
-        document.querySelector("#start");
+        document.getElementById(
+            "start-button"
+        );
 
     const resetButton =
-        document.querySelector("#reset");
+        document.getElementById(
+            "reset-button"
+        );
 
-    const testButton =
-        document.querySelector("#test");
+    const targetRateDisplay =
+        document.getElementById(
+            "target-rate"
+        );
 
-    const audioFile =
-        document.querySelector("#audioFile");
+    const otherRatesDisplay =
+        document.getElementById(
+            "other-rates"
+        );
 
-    const filename =
-        document.querySelector("#filename");
+    const audioFileInput =
+        document.getElementById(
+            "audio-file"
+        );
 
-    const defaultButton =
-        document.querySelector("#defaultSound");
+    const selectedSoundDisplay =
+        document.getElementById(
+            "selected-sound"
+        );
 
+    const defaultSoundButton =
+        document.getElementById(
+            "default-sound-button"
+        );
 
-    /*
-     * YouTube
-     */
+    const testSoundButton =
+        document.getElementById(
+            "test-sound-button"
+        );
 
-    const ytUrl =
-        document.querySelector("#ytUrl");
+    const youtubeUrlInput =
+        document.getElementById(
+            "youtube-url"
+        );
 
-    const ytStart =
-        document.querySelector("#ytStart");
+    const youtubeStartInput =
+        document.getElementById(
+            "youtube-start"
+        );
 
-    const ytDuration =
-        document.querySelector("#ytDuration");
+    const youtubeDurationInput =
+        document.getElementById(
+            "youtube-duration"
+        );
 
-    const ytLoad =
-        document.querySelector("#ytLoad");
+    const youtubeLoadButton =
+        document.getElementById(
+            "youtube-load-button"
+        );
 
-    const ytUse =
-        document.querySelector("#ytUse");
+    const youtubeUseButton =
+        document.getElementById(
+            "youtube-use-button"
+        );
 
-    const ytStatus =
-        document.querySelector("#ytStatus");
+    const youtubeStatusDisplay =
+        document.getElementById(
+            "youtube-status"
+        );
 
+    progressRing.style.strokeDasharray =
+        CIRCLE_CIRCUMFERENCE;
 
-    arc.style.strokeDasharray =
-        circumference;
+    progressRing.style.strokeDashoffset =
+        CIRCLE_CIRCUMFERENCE;
 
-    arc.style.strokeDashoffset =
-        circumference;
-
-
-
-    /*
-     * ==========================================
-     * STATUS
-     * ==========================================
-     */
-
-    let running = false;
-
-    let accumulatedRotation = 0;
-
-    let lastRoll = null;
+    let monitoring = false;
 
     let completed = false;
 
+    let accumulatedRotation =
+        0;
 
-    /*
-     * SOUND
-     */
+    let lastTimestamp =
+        null;
 
-    let audioContext = null;
+    let audioContext =
+        null;
 
-    let customAudio = null;
+    let customAudio =
+        null;
 
-    let objectUrl = null;
+    let customAudioUrl =
+        null;
 
-    let soundMode =
+    let selectedSoundMode =
         "standard";
 
+    let youtubePlayer =
+        null;
+
+    let youtubePlayerReady =
+        false;
+
+    let youtubeStopTimer =
+        null;
 
     /*
-     * YOUTUBE
-     */
-
-    let player = null;
-
-    let youtubeReady = false;
-
-    let youtubeTimer = null;
-
-
-
-    /*
-     * ==========================================
+     * =========================================
      * ANZEIGE
-     * ==========================================
+     * =========================================
      */
 
-    function updateUI() {
+    function updateProgressDisplay() {
+
+        const absoluteRotation =
+            Math.abs(
+                accumulatedRotation
+            );
 
         const progress =
             Math.min(
-                Math.abs(
-                    accumulatedRotation
-                ) / FULL_ROTATION,
+                absoluteRotation /
+                FULL_ROTATION_RADIANS,
                 1
             );
-
 
         const degrees =
             Math.round(
                 progress * 360
             );
 
-
-        degree.innerHTML =
+        degreeDisplay.innerHTML =
             `${degrees}°
             <small>
                 Ziel 360° · Ton ab 270°
             </small>`;
 
-
-        arc.style.strokeDashoffset =
-            circumference *
+        progressRing.style.strokeDashoffset =
+            CIRCLE_CIRCUMFERENCE *
             (1 - progress);
 
-
         if (
-            Math.abs(
-                accumulatedRotation
-            ) >= TRIGGER_ROTATION
+            absoluteRotation >=
+            SOUND_TRIGGER_RADIANS
         ) {
 
-            arc.style.stroke =
+            progressRing.style.stroke =
                 "var(--green)";
 
-        }
-        else {
+        } else {
 
-            arc.style.stroke =
+            progressRing.style.stroke =
                 "var(--blue)";
 
         }
 
     }
 
-
-
     /*
-     * ==========================================
-     * RESET
-     * ==========================================
+     * =========================================
+     * MESSUNG ZURÜCKSETZEN
+     * =========================================
      */
 
     function resetMeasurement(
-        message =
-        "Überwachung aktiv – iPhone quer halten"
+        message = "Bereit für die Drehung"
     ) {
 
-        accumulatedRotation = 0;
+        accumulatedRotation =
+            0;
 
-        lastRoll = null;
+        lastTimestamp =
+            null;
 
-        completed = false;
+        completed =
+            false;
 
-        status.textContent =
+        statusDisplay.textContent =
             message;
 
-        updateUI();
+        targetRateDisplay.textContent =
+            "0,00°/s";
+
+        otherRatesDisplay.textContent =
+            "0,00 / 0,00°/s";
+
+        updateProgressDisplay();
 
     }
 
-
-
     /*
-     * ==========================================
+     * =========================================
      * AUDIO
-     * ==========================================
+     * =========================================
      */
 
-    function ensureAudio() {
+    function prepareAudioContext() {
 
         if (!audioContext) {
 
@@ -804,7 +849,6 @@
                 )();
 
         }
-
 
         if (
             audioContext.state ===
@@ -817,68 +861,59 @@
 
     }
 
-
-
     function playStandardSound() {
 
-        ensureAudio();
+        prepareAudioContext();
 
-
-        const now =
+        const currentTime =
             audioContext.currentTime;
 
-
-        const tones = [
+        const frequencies = [
             659,
             880,
             1175
         ];
 
-
-        tones.forEach(
+        frequencies.forEach(
             (frequency, index) => {
 
                 const delay =
                     index * 0.22;
 
-
                 const oscillator =
                     audioContext
                         .createOscillator();
-
 
                 const gain =
                     audioContext
                         .createGain();
 
-
                 oscillator.type =
                     "sine";
-
 
                 oscillator.frequency.value =
                     frequency;
 
-
                 gain.gain.setValueAtTime(
                     0.0001,
-                    now + delay
+                    currentTime + delay
                 );
-
 
                 gain.gain
                     .exponentialRampToValueAtTime(
                         0.35,
-                        now + delay + 0.015
+                        currentTime +
+                        delay +
+                        0.015
                     );
-
 
                 gain.gain
                     .exponentialRampToValueAtTime(
                         0.0001,
-                        now + delay + 0.18
+                        currentTime +
+                        delay +
+                        0.18
                     );
-
 
                 oscillator
                     .connect(gain)
@@ -886,161 +921,38 @@
                         audioContext.destination
                     );
 
-
                 oscillator.start(
-                    now + delay
+                    currentTime + delay
                 );
-
 
                 oscillator.stop(
-                    now + delay + 0.20
+                    currentTime +
+                    delay +
+                    0.20
                 );
 
             }
         );
 
     }
-
-
-
-    /*
-     * ==========================================
-     * YOUTUBE
-     * ==========================================
-     */
-
-    function getYoutubeID(url) {
-
-        try {
-
-            const parsed =
-                new URL(url);
-
-
-            if (
-                parsed.hostname
-                    .includes("youtu.be")
-            ) {
-
-                return parsed.pathname
-                    .slice(1)
-                    .split("/")[0];
-
-            }
-
-
-            if (
-                parsed.pathname
-                    .startsWith("/shorts/")
-            ) {
-
-                return parsed.pathname
-                    .split("/")[2];
-
-            }
-
-
-            return parsed.searchParams
-                .get("v");
-
-        }
-        catch {
-
-            return null;
-
-        }
-
-    }
-
-
-
-    function playYoutube() {
-
-        if (
-            !player ||
-            !youtubeReady
-        ) {
-
-            playStandardSound();
-
-            return;
-
-        }
-
-
-        const startTime =
-            Math.max(
-                0,
-                Number(
-                    ytStart.value
-                ) || 0
-            );
-
-
-        const duration =
-            Math.min(
-                60,
-                Math.max(
-                    1,
-                    Number(
-                        ytDuration.value
-                    ) || 5
-                )
-            );
-
-
-        player.seekTo(
-            startTime,
-            true
-        );
-
-
-        player.unMute();
-
-        player.setVolume(100);
-
-        player.playVideo();
-
-
-        clearTimeout(
-            youtubeTimer
-        );
-
-
-        youtubeTimer =
-            setTimeout(
-                () => {
-
-                    player.pauseVideo();
-
-                },
-                duration * 1000
-            );
-
-    }
-
-
 
     function playSelectedSound() {
 
         if (
-            soundMode ===
+            selectedSoundMode ===
             "youtube"
         ) {
 
-            playYoutube();
+            playYoutubeSound();
 
-        }
-
-        else if (
-            soundMode ===
+        } else if (
+            selectedSoundMode ===
             "custom" &&
             customAudio
         ) {
 
             customAudio.currentTime =
                 0;
-
 
             customAudio
                 .play()
@@ -1050,88 +962,234 @@
                     }
                 );
 
-        }
-
-        else {
+        } else {
 
             playStandardSound();
 
         }
 
-
-        if (
-            navigator.vibrate
-        ) {
+        if (navigator.vibrate) {
 
             navigator.vibrate(
-                [120,60,120]
+                [120, 60, 120]
             );
 
         }
 
     }
 
-
-
     /*
-     * ==========================================
-     * WINKEL NORMALISIEREN
-     * ==========================================
+     * =========================================
+     * YOUTUBE
+     * =========================================
      */
 
-    function normaliseDelta(
-        current,
-        previous
+    function extractYoutubeVideoId(
+        suppliedUrl
     ) {
 
-        let delta =
-            current - previous;
+        try {
 
+            const parsedUrl =
+                new URL(suppliedUrl);
 
-        while (
-            delta > 180
-        ) {
+            if (
+                parsedUrl.hostname
+                    .includes("youtu.be")
+            ) {
 
-            delta -= 360;
+                return parsedUrl.pathname
+                    .slice(1)
+                    .split("/")[0];
+
+            }
+
+            if (
+                parsedUrl.pathname
+                    .startsWith("/shorts/")
+            ) {
+
+                return parsedUrl.pathname
+                    .split("/")[2];
+
+            }
+
+            return parsedUrl
+                .searchParams
+                .get("v");
+
+        } catch {
+
+            return null;
 
         }
-
-
-        while (
-            delta < -180
-        ) {
-
-            delta += 360;
-
-        }
-
-
-        return delta;
 
     }
 
-
-
-    /*
-     * ==========================================
-     * BEWEGUNGSERKENNUNG
-     * ==========================================
-     *
-     * Das iPhone wird QUER gehalten.
-     *
-     * Wir interessieren uns für die
-     * Roll-Drehung um die lange
-     * Geräteachse.
-     *
-     * Drehungen des gesamten Körpers
-     * links/rechts sollen NICHT
-     * hinzuaddiert werden.
-     */
-
-    function handleOrientation(event) {
+    function playYoutubeSound() {
 
         if (
-            !running ||
+            !youtubePlayer ||
+            !youtubePlayerReady
+        ) {
+
+            playStandardSound();
+            return;
+
+        }
+
+        const startSecond =
+            Math.max(
+                0,
+                Number(
+                    youtubeStartInput.value
+                ) || 0
+            );
+
+        const durationSeconds =
+            Math.min(
+                60,
+                Math.max(
+                    1,
+                    Number(
+                        youtubeDurationInput.value
+                    ) || 5
+                )
+            );
+
+        youtubePlayer.seekTo(
+            startSecond,
+            true
+        );
+
+        youtubePlayer.unMute();
+
+        youtubePlayer.setVolume(100);
+
+        youtubePlayer.playVideo();
+
+        clearTimeout(
+            youtubeStopTimer
+        );
+
+        youtubeStopTimer =
+            setTimeout(
+                () => {
+
+                    youtubePlayer.pauseVideo();
+
+                },
+                durationSeconds * 1000
+            );
+
+    }
+
+    function loadYoutubeVideo(
+        playImmediately = false
+    ) {
+
+        const videoId =
+            extractYoutubeVideoId(
+                youtubeUrlInput
+                    .value
+                    .trim()
+            );
+
+        if (!videoId) {
+
+            youtubeStatusDisplay.textContent =
+                "Ungültiger YouTube-Link";
+
+            return;
+
+        }
+
+        if (
+            typeof YT === "undefined" ||
+            typeof YT.Player === "undefined"
+        ) {
+
+            youtubeStatusDisplay.textContent =
+                "YouTube-Player wird noch geladen. Bitte erneut versuchen.";
+
+            return;
+
+        }
+
+        if (
+            youtubePlayer &&
+            youtubePlayer.destroy
+        ) {
+
+            youtubePlayer.destroy();
+
+        }
+
+        youtubePlayerReady =
+            false;
+
+        youtubePlayer =
+            new YT.Player(
+                "youtube-player",
+                {
+                    height: "200",
+                    width: "100%",
+
+                    videoId: videoId,
+
+                    playerVars: {
+                        playsinline: 1,
+                        controls: 1,
+                        rel: 0
+                    },
+
+                    events: {
+
+                        onReady: () => {
+
+                            youtubePlayerReady =
+                                true;
+
+                            youtubeStatusDisplay.textContent =
+                                "YouTube geladen";
+
+                            if (playImmediately) {
+
+                                playYoutubeSound();
+
+                            }
+
+                        },
+
+                        onError: () => {
+
+                            youtubeStatusDisplay.textContent =
+                                "YouTube-Video konnte nicht geladen werden.";
+
+                        }
+
+                    }
+                }
+            );
+
+    }
+
+    /*
+     * =========================================
+     * BEWEGUNGSDATEN
+     * =========================================
+     *
+     * DeviceMotion rotationRate:
+     *
+     * beta  = gewünschte grüne Bewegung
+     * gamma = andere Geräteachse
+     * alpha = Drehung links/rechts
+     */
+
+    function handleDeviceMotion(event) {
+
+        if (
+            !monitoring ||
             completed
         ) {
 
@@ -1139,175 +1197,165 @@
 
         }
 
+        if (!event.rotationRate) {
+
+            return;
+
+        }
+
+        const rotationRate =
+            event.rotationRate;
+
+        const targetRateDegrees =
+            Number(
+                rotationRate.beta
+            ) || 0;
+
+        const otherRateOne =
+            Number(
+                rotationRate.gamma
+            ) || 0;
+
+        const otherRateTwo =
+            Number(
+                rotationRate.alpha
+            ) || 0;
+
+        targetRateDisplay.textContent =
+            targetRateDegrees
+                .toFixed(2)
+                .replace(".", ",") +
+            "°/s";
+
+        otherRatesDisplay.textContent =
+            otherRateOne
+                .toFixed(2)
+                .replace(".", ",") +
+            " / " +
+            otherRateTwo
+                .toFixed(2)
+                .replace(".", ",") +
+            "°/s";
+
+        const timestamp =
+            event.timeStamp ||
+            performance.now();
 
         if (
-            event.beta == null ||
-            event.gamma == null
+            lastTimestamp ===
+            null
         ) {
 
-            return;
-
-        }
-
-
-        const beta =
-            event.beta;
-
-        const gamma =
-            event.gamma;
-
-
-
-        /*
-         * Prüfen, ob iPhone
-         * ungefähr im Querformat ist.
-         */
-
-        const isLandscape =
-            Math.abs(gamma) >= 55;
-
-
-
-        /*
-         * Wenn das iPhone kurz außerhalb
-         * des Querformats ist:
-         *
-         * NICHT komplette Messung löschen.
-         *
-         * Nur Referenzwinkel neu setzen.
-         */
-
-        if (!isLandscape) {
-
-            lastRoll = null;
-
-
-            status.textContent =
-                "iPhone quer halten";
+            lastTimestamp =
+                timestamp;
 
             return;
 
         }
 
-
-
-        /*
-         * beta dient hier als
-         * Roll-Komponente während
-         * der Querhaltung.
-         */
-
-        const roll =
-            beta;
-
-
-
-        /*
-         * Erster Messwert
-         */
-
-        if (
-            lastRoll == null
-        ) {
-
-            lastRoll =
-                roll;
-
-
-            status.textContent =
-                "Querformat erkannt – jetzt drehen";
-
-
-            return;
-
-        }
-
-
-
-        let delta =
-            normaliseDelta(
-                roll,
-                lastRoll
+        const deltaTime =
+            Math.min(
+                Math.max(
+                    (
+                        timestamp -
+                        lastTimestamp
+                    ) / 1000,
+                    0
+                ),
+                MAXIMUM_DELTA_TIME
             );
 
-
-        lastRoll =
-            roll;
-
-
-
-        /*
-         * Unplausible Sensor-Sprünge
-         * ignorieren.
-         */
+        lastTimestamp =
+            timestamp;
 
         if (
-            Math.abs(delta) > 25
+            deltaTime <= 0
         ) {
 
             return;
 
         }
 
+        const targetStrength =
+            Math.abs(
+                targetRateDegrees
+            );
 
+        const totalStrength =
+            targetStrength +
+            Math.abs(otherRateOne) +
+            Math.abs(otherRateTwo);
+
+        const targetDominance =
+            totalStrength > 0
+                ? targetStrength /
+                  totalStrength
+                : 0;
 
         /*
-         * Sehr kleines Sensorrauschen
-         * ignorieren.
+         * Nur die gewünschte Achse addieren.
+         *
+         * Kleinere Handbewegungen werden
+         * toleriert. Eine überwiegende Bewegung
+         * um eine falsche Achse wird ignoriert.
          */
 
         if (
-            Math.abs(delta) >= 0.12
+            targetStrength >=
+            MINIMUM_TARGET_RATE &&
+            targetDominance >=
+            TARGET_AXIS_DOMINANCE
         ) {
 
-            accumulatedRotation +=
-                delta *
+            const targetRateRadians =
+                targetRateDegrees *
                 Math.PI /
                 180;
 
+            accumulatedRotation +=
+                targetRateRadians *
+                deltaTime;
 
-            status.textContent =
-                "Roll-Drehung erkannt";
+            statusDisplay.textContent =
+                "Gewünschte Drehung erkannt";
+
+            updateProgressDisplay();
+
+        } else if (
+            targetStrength >=
+            MINIMUM_TARGET_RATE
+        ) {
+
+            statusDisplay.textContent =
+                "Andere Drehachse erkannt – wird nicht gezählt";
 
         }
 
-
-
-        updateUI();
-
-
-
         /*
-         * ==================================
-         * SIGNAL BEI 270°
-         * ==================================
+         * Signal bereits bei 270°.
          */
 
         if (
             Math.abs(
                 accumulatedRotation
             ) >=
-            TRIGGER_ROTATION
+            SOUND_TRIGGER_RADIANS
         ) {
 
             completed =
                 true;
 
-
-            status.innerHTML =
-                '<span class="ok">' +
-                '270° erreicht – Signal!' +
+            statusDisplay.innerHTML =
+                '<span class="success">' +
+                '270° erreicht – Signal ausgelöst' +
                 '</span>';
 
-
             playSelectedSound();
-
-
 
             setTimeout(
                 () => {
 
-                    if (running) {
+                    if (monitoring) {
 
                         resetMeasurement(
                             "Bereit für die nächste Drehung"
@@ -1316,59 +1364,45 @@
                     }
 
                 },
-                1900
+                2000
             );
 
         }
 
     }
 
-
-
     /*
-     * ==========================================
-     * START
-     * ==========================================
+     * =========================================
+     * START UND STOPP
+     * =========================================
      */
 
     async function startMonitoring() {
 
         try {
 
-            ensureAudio();
-
+            prepareAudioContext();
 
             if (
-                typeof
-                DeviceOrientationEvent ===
+                typeof DeviceMotionEvent ===
                 "undefined"
             ) {
 
                 throw new Error(
-                    "Dieser Browser stellt keine Orientierungssensoren bereit."
+                    "Dieser Browser stellt keine Bewegungssensoren bereit."
                 );
 
             }
 
-
-
-            /*
-             * iOS benötigt die Abfrage
-             * direkt nach Benutzeraktion.
-             */
-
             if (
-                typeof
-                DeviceOrientationEvent
+                typeof DeviceMotionEvent
                     .requestPermission ===
                 "function"
             ) {
 
                 const permission =
-                    await
-                    DeviceOrientationEvent
+                    await DeviceMotionEvent
                         .requestPermission();
-
 
                 if (
                     permission !==
@@ -1376,75 +1410,58 @@
                 ) {
 
                     throw new Error(
-                        "Bewegungszugriff wurde nicht erlaubt."
+                        "Der Zugriff auf Bewegung und Ausrichtung wurde nicht erlaubt."
                     );
 
                 }
 
             }
 
-
-
             window.addEventListener(
-                "deviceorientation",
-                handleOrientation,
+                "devicemotion",
+                handleDeviceMotion,
                 true
             );
 
-
-            running =
+            monitoring =
                 true;
 
-
-            resetMeasurement();
-
+            resetMeasurement(
+                "Überwachung aktiv – iPhone im Hochformat drehen"
+            );
 
             startButton.textContent =
                 "Überwachung stoppen";
 
-
             startButton.classList
                 .add("stop");
 
-        }
+        } catch (error) {
 
-        catch (error) {
-
-            status.textContent =
-                error.message;
+            statusDisplay.textContent =
+                error.message ||
+                "Die Sensorfreigabe ist fehlgeschlagen.";
 
         }
 
     }
 
-
-
-    /*
-     * ==========================================
-     * STOP
-     * ==========================================
-     */
-
     function stopMonitoring() {
 
         window.removeEventListener(
-            "deviceorientation",
-            handleOrientation,
+            "devicemotion",
+            handleDeviceMotion,
             true
         );
 
-
-        running =
+        monitoring =
             false;
-
 
         startButton.textContent =
             "Überwachung starten";
 
-
         startButton.classList
             .remove("stop");
-
 
         resetMeasurement(
             "Überwachung beendet"
@@ -1452,302 +1469,177 @@
 
     }
 
-
-
     /*
-     * ==========================================
-     * BUTTONS
-     * ==========================================
+     * =========================================
+     * BEDIENELEMENTE
+     * =========================================
      */
 
-    startButton.onclick =
+    startButton.addEventListener(
+        "click",
         () => {
 
-            if (running) {
+            if (monitoring) {
 
                 stopMonitoring();
 
-            }
-            else {
+            } else {
 
                 startMonitoring();
 
             }
 
-        };
+        }
+    );
 
-
-    resetButton.onclick =
+    resetButton.addEventListener(
+        "click",
         () => {
 
             resetMeasurement(
-                running
-                ? "Messung zurückgesetzt"
-                : "Bereit"
+                monitoring
+                    ? "Messung zurückgesetzt"
+                    : "Bereit"
             );
 
-        };
+        }
+    );
 
-
-    testButton.onclick =
+    testSoundButton.addEventListener(
+        "click",
         () => {
 
+            prepareAudioContext();
             playSelectedSound();
 
-        };
+        }
+    );
 
-
-
-    /*
-     * ==========================================
-     * EIGENE AUDIODATEI
-     * ==========================================
-     */
-
-    audioFile.onchange =
+    audioFileInput.addEventListener(
+        "change",
         () => {
 
-            const file =
-                audioFile.files &&
-                audioFile.files[0];
+            const selectedFile =
+                audioFileInput.files &&
+                audioFileInput.files[0];
 
-
-            if (!file) {
+            if (!selectedFile) {
 
                 return;
 
             }
 
-
-            if (objectUrl) {
+            if (customAudioUrl) {
 
                 URL.revokeObjectURL(
-                    objectUrl
+                    customAudioUrl
                 );
 
             }
 
-
-            objectUrl =
+            customAudioUrl =
                 URL.createObjectURL(
-                    file
+                    selectedFile
                 );
-
 
             customAudio =
                 new Audio(
-                    objectUrl
+                    customAudioUrl
                 );
-
 
             customAudio.preload =
                 "auto";
 
-
-            soundMode =
+            selectedSoundMode =
                 "custom";
 
-
-            filename.textContent =
+            selectedSoundDisplay.textContent =
                 "Eigener Ton: " +
-                file.name;
+                selectedFile.name;
 
-
-            status.textContent =
+            statusDisplay.textContent =
                 "Eigener Ton ausgewählt";
 
-        };
+        }
+    );
 
-
-
-    /*
-     * STANDARDTON
-     */
-
-    defaultButton.onclick =
+    defaultSoundButton.addEventListener(
+        "click",
         () => {
 
-            soundMode =
+            selectedSoundMode =
                 "standard";
 
-
-            filename.textContent =
+            selectedSoundDisplay.textContent =
                 "Standardton ausgewählt";
 
-
-            status.textContent =
+            statusDisplay.textContent =
                 "Standardton aktiviert";
-
 
             playStandardSound();
 
-        };
-
-
-
-    /*
-     * ==========================================
-     * YOUTUBE LADEN
-     * ==========================================
-     */
-
-    function loadYoutube(
-        testAfterLoading = false
-    ) {
-
-        const id =
-            getYoutubeID(
-                ytUrl.value.trim()
-            );
-
-
-        if (!id) {
-
-            ytStatus.textContent =
-                "Ungültiger YouTube-Link";
-
-            return;
-
         }
+    );
 
-
-        if (
-            player &&
-            player.destroy
-        ) {
-
-            player.destroy();
-
-        }
-
-
-        youtubeReady =
-            false;
-
-
-        player =
-            new YT.Player(
-                "ytPlayer",
-                {
-
-                    height:
-                        "200",
-
-                    width:
-                        "100%",
-
-                    videoId:
-                        id,
-
-                    playerVars: {
-
-                        playsinline:
-                            1,
-
-                        controls:
-                            1,
-
-                        rel:
-                            0
-
-                    },
-
-
-                    events: {
-
-                        onReady:
-                            () => {
-
-                                youtubeReady =
-                                    true;
-
-
-                                ytStatus.textContent =
-                                    "YouTube geladen";
-
-
-                                if (
-                                    testAfterLoading
-                                ) {
-
-                                    playYoutube();
-
-                                }
-
-                            },
-
-
-                        onError:
-                            () => {
-
-                                ytStatus.textContent =
-                                    "YouTube-Video konnte nicht geladen werden.";
-
-                            }
-
-                    }
-
-                }
-            );
-
-    }
-
-
-
-    ytLoad.onclick =
+    youtubeLoadButton.addEventListener(
+        "click",
         () => {
 
-            loadYoutube(
-                true
-            );
+            loadYoutubeVideo(true);
 
-        };
+        }
+    );
 
-
-
-    ytUse.onclick =
+    youtubeUseButton.addEventListener(
+        "click",
         () => {
 
-            if (
-                !youtubeReady
-            ) {
+            if (!youtubePlayerReady) {
 
-                loadYoutube(
-                    false
-                );
+                loadYoutubeVideo(false);
 
-
-                ytStatus.textContent =
-                    "YouTube wird geladen...";
-
+                youtubeStatusDisplay.textContent =
+                    "YouTube wird geladen. Danach erneut auswählen.";
 
                 return;
 
             }
 
-
-            soundMode =
+            selectedSoundMode =
                 "youtube";
 
-
-            ytStatus.textContent =
+            youtubeStatusDisplay.textContent =
                 "YouTube ist als Signal ausgewählt";
 
-
-            status.textContent =
+            statusDisplay.textContent =
                 "YouTube-Ton aktiviert";
 
-        };
+        }
+    );
 
+    document.addEventListener(
+        "visibilitychange",
+        () => {
 
-    /*
-     * Initiale Anzeige
-     */
+            if (
+                document.hidden &&
+                monitoring
+            ) {
 
-    updateUI();
+                statusDisplay.textContent =
+                    "Safari ist im Hintergrund – Messung pausiert";
+
+                lastTimestamp =
+                    null;
+
+            }
+
+        }
+    );
+
+    updateProgressDisplay();
 
 })();
-
 </script>
 
 </body>
